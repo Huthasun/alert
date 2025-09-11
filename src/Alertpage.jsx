@@ -36,14 +36,21 @@ const Alertpage = () => {
       console.log(`Received message: ${message.toString()} on topic: ${topic}`);
       try {
         const data = JSON.parse(message.toString());
-        if (data.location) {
-          setLocation(data.location);
-          if (!opened) setOpened(true);
-        }
-      } catch (error) {
-        console.error('Invalid JSON data:', error);
-      }
-    });
+       // Location vaste modal open cheyyali
+    if (data.location) {
+      setLocation(data.location);
+      if (!opened) setOpened(true);
+    }
+
+    // Status "OFF" vaste modal close cheyyali
+    if (data.location && data.location === "OFF") {
+      setOpened(false);
+    }
+  } catch (error) {
+    console.error("Invalid JSON data:", error);
+  }
+});
+
 
     return () => {
       mqttClient.end();
@@ -86,7 +93,7 @@ const Alertpage = () => {
         style={{
           width: "100%",
           height: "100vh",
-          display: "flex",
+          display: opened ? "none" : "flex",
           justifyContent: "center",
           alignItems: "center",
         }}
@@ -123,7 +130,9 @@ const Alertpage = () => {
         withCloseButton={false}
         size="sm"
         centered
-        overlayProps={{ backgroundOpacity: 0.6, blur: 2 }}
+        overlayProps={{ backgroundOpacity: 0.9, blur: 4 }}
+        closeOnClickOutside={false}
+        closeOnEscape={false} 
         styles={{
           content: {
             display: "flex",

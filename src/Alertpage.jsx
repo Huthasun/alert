@@ -163,7 +163,7 @@ const Alertpage = () => {
             }}
           >
             <Image src={QRCode} width={150} />
-            <Text mt="sm" fz="16px" fw={600}>
+            <Text mt="sm" fz="16px" fw={600}> 
               Scan QR for details
             </Text>
           </div>

@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import React, { useState, useEffect } from "react";
 import Image1 from "./assets/emergency-icon.png";
-import QRCode from "./assets/Qr_code.png";
+import QRCode from "./assets/QR_code.png";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import mqtt from 'mqtt';
 

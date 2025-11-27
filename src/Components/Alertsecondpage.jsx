@@ -563,11 +563,11 @@ const Alertsecondpage = () => {
   const [progressValue, setProgressValue] = useState(0);
   const [progressDone, setProgressDone] = useState(false);
 
-  // ⭐ MQTT card visibility
+ 
   const [mqttCardVisible, setMqttCardVisible] = useState(false);
   const [mqttMessage, setMqttMessage] = useState("");
 
-  // ⭐ MQTT Integration
+  
   useEffect(() => {
     const mqttClient = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
 

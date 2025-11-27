@@ -11,8 +11,8 @@ import {
   Text,
 } from "@mantine/core";
 import React, { useState, useEffect } from "react";
-import Image1 from "./assets/emergency-icon.png";
-import QRCode from "./assets/WhatsApp Image 2025-09-11 at 10.43.22 PM.png";
+import Image1 from "../assets/emergency-icon.png";
+import QRCode from "../assets/WhatsApp Image 2025-09-11 at 10.43.22 PM.png";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import mqtt from 'mqtt';
 

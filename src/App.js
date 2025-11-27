@@ -1,13 +1,19 @@
+import React from 'react'
+import { BrowserRouter as Router, Route, Routes, Navigate} from "react-router-dom";
+import Alertpage from './Components/Alertpage'
+import Alertsecondpage from './Components/Alertsecondpage'
 
-import Alertpage from './Alertpage';
-import './App.css';
-
-function App() {
+const App = () => {
   return (
-    <div className="App">
-     <Alertpage />
+    <div>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Alertpage/>}/>
+             <Route path="/alertcards" element={<Alertsecondpage/>}/>
+          </Routes>
+        </Router>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

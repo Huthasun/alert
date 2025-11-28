@@ -558,16 +558,22 @@ import mqtt from "mqtt";
 
 const Alertsecondpage = () => {
 
-  const [showPopup, setShowPopup] = useState(false);
-  const [progressActive, setProgressActive] = useState(false);
-  const [progressValue, setProgressValue] = useState(0);
-  const [progressDone, setProgressDone] = useState(false);
+  // FIRST CARD STATES
+  const [showPopup1, setShowPopup1] = useState(false);
+  const [progressActive1, setProgressActive1] = useState(false);
+  const [progressValue1, setProgressValue1] = useState(0);
+  const [progressDone1, setProgressDone1] = useState(false);
 
- 
+  // SECOND CARD STATES (MQTT CARD)
   const [mqttCardVisible, setMqttCardVisible] = useState(false);
   const [mqttMessage, setMqttMessage] = useState("");
 
-  
+  const [showPopup2, setShowPopup2] = useState(false);
+  const [progressActive2, setProgressActive2] = useState(false);
+  const [progressValue2, setProgressValue2] = useState(0);
+  const [progressDone2, setProgressDone2] = useState(false);
+
+  // ---------------- MQTT ----------------
   useEffect(() => {
     const mqttClient = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
 
@@ -580,13 +586,13 @@ const Alertsecondpage = () => {
       try {
         const data = JSON.parse(msg.toString());
 
-        if (data?.location && data.location !== "OFF") {
+        if (data.location && data.location !== "OFF") {
           setMqttMessage(data.location);
-          setMqttCardVisible(true);  // SHOW MQTT CARD
+          setMqttCardVisible(true);
         }
 
-        if (data?.location === "OFF") {
-          setMqttCardVisible(false); // HIDE MQTT CARD
+        if (data.location === "OFF") {
+          setMqttCardVisible(false);
         }
       } catch (e) {
         console.log("Invalid JSON");
@@ -596,6 +602,195 @@ const Alertsecondpage = () => {
     return () => mqttClient.end();
   }, []);
 
+  // ---------------- CARD UI TEMPLATE (RE-USABLE) ----------------
+  const renderCard = (
+    title,
+    message,
+    progressActive,
+    progressValue,
+    progressDone,
+    setShowPopup
+  ) => (
+    <div
+      style={{
+        width: "350px",
+        background: "#fff",
+        borderRadius: "12px",
+        padding: "20px",
+        marginTop: "30px",
+        marginLeft: "20px",
+        boxShadow: "0px 4px 15px rgba(0,0,0,0.15)",
+      }}
+    >
+      <h2 style={{ margin: 0 }}>{title}</h2>
+      <p style={{ color: "#777", marginTop: "5px" }}>Emergency Notification</p>
+
+      {!progressActive ? (
+        <>
+          <p style={{ marginTop: "15px", color: "#555" }}>{message}</p>
+
+          <button
+            style={{
+              padding: "12px 26px",
+              marginTop: "12px",
+              background: "linear-gradient(135deg, #D7263D, #B71C1C)",
+              border: "none",
+              color: "#fff",
+              fontSize: "15px",
+              fontWeight: "600",
+              borderRadius: "10px",
+              cursor: "pointer",
+              letterSpacing: "0.5px",
+              boxShadow: "0px 4px 12px rgba(215, 38, 61, 0.4)",
+              transition: "all 0.25s ease-in-out",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = "translateY(-3px)";
+              e.target.style.boxShadow =
+                "0px 8px 18px rgba(215, 38, 61, 0.6)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = "translateY(0px)";
+              e.target.style.boxShadow =
+                "0px 4px 12px rgba(215, 38, 61, 0.4)";
+            }}
+            onClick={() => setShowPopup(true)}
+          >
+            ACTION
+          </button>
+        </>
+      ) : (
+        <>
+          <h3 style={{ color: progressDone ? "#28C76F" : "#FF6F20" }}>
+            {progressDone ? "Completed!" : "Processing..."}
+          </h3>
+
+          <div
+            style={{
+              width: "100%",
+              height: "14px",
+              background: "#EEE",
+              borderRadius: "8px",
+              overflow: "hidden",
+              marginTop: "15px",
+            }}
+          >
+            <div
+              style={{
+                width: `${progressValue}%`,
+                height: "100%",
+                transition: "0.3s",
+                background: progressDone
+                  ? "#28C76F"
+                  : "linear-gradient(135deg, #FF9F43, #FF6F20)",
+              }}
+            ></div>
+          </div>
+
+          <p
+            style={{
+              marginTop: "10px",
+              fontWeight: "600",
+              color: progressDone ? "#28C76F" : "#FF6F20",
+            }}
+          >
+            {progressDone
+              ? "Progress Completed ✔"
+              : `In Progress... ${progressValue}%`}
+          </p>
+        </>
+      )}
+    </div>
+  );
+
+  // ---------------- POPUP TEMPLATE ----------------
+  const renderPopup = (
+    setShowPopup,
+    setProgressActive,
+    setProgressValue,
+    setProgressDone
+  ) => (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        background: "rgba(0,0,0,0.4)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 9999,
+      }}
+    >
+      <div
+        style={{
+          width: "320px",
+          background: "#fff",
+          borderRadius: "12px",
+          padding: "25px",
+          textAlign: "center",
+          boxShadow: "0px 4px 15px rgba(0,0,0,0.2)",
+        }}
+      >
+        <div
+          style={{
+            width: "70px",
+            height: "70px",
+            background: "#28C76F",
+            borderRadius: "50%",
+            margin: "0 auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ fontSize: "40px", color: "#fff" }}>✓</span>
+        </div>
+
+        <h3 style={{ marginTop: "15px", color: "#333" }}>Confirm Action?</h3>
+        <p style={{ color: "#777", marginBottom: "20px" }}>
+          Are you sure you want to continue?
+        </p>
+
+        <button
+          style={{
+            padding: "12px 26px",
+            background: "linear-gradient(135deg, #28C76F, #1E9E5A)",
+            border: "none",
+            color: "#fff",
+            borderRadius: "10px",
+            fontSize: "15px",
+            fontWeight: "600",
+            cursor: "pointer",
+            letterSpacing: "0.5px",
+            boxShadow: "0px 4px 12px rgba(40, 199, 111, 0.4)",
+            transition: "all 0.25s ease-in-out",
+          }}
+          onClick={() => {
+            setShowPopup(false);
+            setProgressActive(true);
+            setProgressValue(0);
+            setProgressDone(false);
+
+            let interval = setInterval(() => {
+              setProgressValue((prev) => {
+                if (prev >= 100) {
+                  clearInterval(interval);
+                  setProgressDone(true);
+                  return 100;
+                }
+                return prev + 2;
+              });
+            }, 1000);
+          }}
+        >
+          YES ✔
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div>
@@ -636,147 +831,49 @@ const Alertsecondpage = () => {
         />
       </div>
 
-      {/* ---------- TWO CARDS SIDE-BY-SIDE ---------- */}
+      {/* ---------- TWO CARDS ---------- */}
       <div style={{ display: "flex", gap: "20px" }}>
 
-        {/* -------------------------------------------------- */}
-        {/* ORIGINAL CARD — UNTOUCHED UI */}
-        {/* -------------------------------------------------- */}
-        <div
-          style={{
-            width: "350px",
-            background: "#fff",
-            borderRadius: "12px",
-            padding: "20px",
-            marginTop: "30px",
-            marginLeft: "20px",
-            boxShadow: "0px 4px 15px rgba(0,0,0,0.15)",
-          }}
-        >
-          <h2 style={{ margin: 0 }}>Alert Card Title</h2>
-          <p style={{ color: "#777", marginTop: "5px" }}>Emergency Notification</p>
-
-          {!progressActive ? (
-            <>
-              <p style={{ marginTop: "15px", color: "#555" }}>
-                This is an alert information card. You can write any message here.
-              </p>
-
-              <button
-                style={{
-                  padding: "12px 26px",
-                  marginTop: "12px",
-                  background: "linear-gradient(135deg, #D7263D, #B71C1C)",
-                  border: "none",
-                  color: "#fff",
-                  fontSize: "15px",
-                  fontWeight: "600",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  letterSpacing: "0.5px",
-                  boxShadow: "0px 4px 12px rgba(215, 38, 61, 0.4)",
-                  transition: "all 0.25s ease-in-out",
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = "translateY(-3px)";
-                  e.target.style.boxShadow = "0px 8px 18px rgba(215, 38, 61, 0.6)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = "translateY(0px)";
-                  e.target.style.boxShadow = "0px 4px 12px rgba(215, 38, 61, 0.4)";
-                }}
-                onClick={() => setShowPopup(true)}
-              >
-                ACTION
-              </button>
-            </>
-          ) : (
-            <>
-              <h3 style={{ color: progressDone ? "#28C76F" : "#FF6F20" }}>
-                {progressDone ? "Completed!" : "Processing..."}
-              </h3>
-
-              <div
-                style={{
-                  width: "100%",
-                  height: "14px",
-                  background: "#EEE",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                  marginTop: "15px",
-                }}
-              >
-                <div
-                  style={{
-                    width: `${progressValue}%`,
-                    height: "100%",
-                    transition: "0.3s",
-                    background: progressDone
-                      ? "#28C76F"
-                      : "linear-gradient(135deg, #FF9F43, #FF6F20)",
-                  }}
-                ></div>
-              </div>
-
-              <p
-                style={{
-                  marginTop: "10px",
-                  fontWeight: "600",
-                  color: progressDone ? "#28C76F" : "#FF6F20",
-                }}
-              >
-                {progressDone
-                  ? "Progress Completed ✔"
-                  : `In Progress... ${progressValue}%`}
-              </p>
-            </>
-          )}
-        </div>
-
-
-        {/* -------------------------------------------------- */}
-        {/* SECOND CARD (MQTT CONTROLLED) — EXACT SAME UI */}
-        {/* -------------------------------------------------- */}
-        {mqttCardVisible && (
-          <div
-            style={{
-              width: "350px",
-              background: "#fff",
-              borderRadius: "12px",
-              padding: "20px",
-              marginTop: "30px",
-              marginLeft: "20px",
-              boxShadow: "0px 4px 15px rgba(0,0,0,0.15)",
-            }}
-          >
-            <h2 style={{ margin: 0 }}>Alert Card Title</h2>
-            <p style={{ color: "#777", marginTop: "5px" }}>Emergency Notification</p>
-
-            <p style={{ marginTop: "15px", color: "#555" }}>
-              MQTT Message Received: <b>{mqttMessage}</b>
-            </p>
-
-            <button
-              style={{
-                padding: "12px 26px",
-                marginTop: "12px",
-                background: "linear-gradient(135deg, #D7263D, #B71C1C)",
-                border: "none",
-                color: "#fff",
-                fontSize: "15px",
-                fontWeight: "600",
-                borderRadius: "10px",
-                cursor: "pointer",
-                letterSpacing: "0.5px",
-                boxShadow: "0px 4px 12px rgba(215, 38, 61, 0.4)",
-              }}
-            >
-              ACTION
-            </button>
-          </div>
+        {/* FIRST CARD (ORIGINAL) */}
+        {renderCard(
+          "Alert Card Title",
+          "This is an alert information card. You can write any message here.",
+          progressActive1,
+          progressValue1,
+          progressDone1,
+          setShowPopup1
         )}
 
+        {/* SECOND CARD — SAME UI BUT MQTT CONTROLLED */}
+        {mqttCardVisible &&
+          renderCard(
+            "Alert Card Title",
+            `MQTT Data: ${mqttMessage}`,
+            progressActive2,
+            progressValue2,
+            progressDone2,
+            setShowPopup2
+          )}
       </div>
+
+      {/* POPUP FOR FIRST CARD */}
+      {showPopup1 &&
+        renderPopup(
+          setShowPopup1,
+          setProgressActive1,
+          setProgressValue1,
+          setProgressDone1
+        )}
+
+      {/* POPUP FOR SECOND CARD */}
+      {showPopup2 &&
+        renderPopup(
+          setShowPopup2,
+          setProgressActive2,
+          setProgressValue2,
+          setProgressDone2
+        )}
+
     </div>
   );
 };
